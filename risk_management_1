@@ -1,0 +1,229 @@
+"""
+σ = 𝔼(R2) - [𝔼(R)]2
+
+R ve 𝔼 sembolleri sırasıyla yıllık getiri ve beklentiyi ifade eder.
+
+
+Portföy varyansının arkasındaki fikir, portföyde bulunan mevcut varlık kombinasyonunun genel olarak pozitif bir getiri sağlayıp sağlamadığının tespiti. 
+
+Portföy varyansı hesaplanırken, kovaryans devreye giriyor ve formül şu şekilde oluşur:
+
+
+σp2 = wa2σa2 + wb2σb2 + 2wawbCov(ra ,rb)
+
+w ağırlığı, σ2 varyans ve Cov kovaryans matrisidir.
+
+Yukarıda elde edilen varyansın karekökünü almak bize portföy standart sapmasını verir:
+
+σp = σp2
+
+Diğer bir deyişle, portföyün beklenen getirisi, bireysel getirilerin ağırlıklı ortalamasıdır ve şu şekilde gösterilebilir:
+
+𝔼(R)=∑inwiRi = w1R1 + w2R2 ⋯ + wnRn
+
+
+Risk-getiri ilişkisini görselleştirmek ve Python ile gerekli istatistikleri hesaplamak için varsayımsal bir portföy oluşturm örneği:
+"""
+
+
+import statsmodels.api as sm
+import numpy as np
+import plotly.graph_objs as go
+import matplotlib.pyplot as plt
+import plotly
+import warnings
+warnings.filterwarnings('ignore')
+
+n_assets = 5
+n_simulation = 500
+
+returns = np.random.randn(n_assets, n_simulation)
+
+rand = np.random.rand(n_assets)
+weights = rand/sum(rand)
+
+
+def port_return(returns):
+    rets = np.mean(returns, axis=1)
+    cov = np.cov(rets.T, aweights=weights, ddof=1)
+    portfolio_returns = np.dot(weights, rets.T)
+    portfolio_std_dev = np.sqrt(np.dot(weights, np.dot(cov, weights)))
+    return portfolio_returns, portfolio_std_dev
+
+portfolio_returns, portfolio_std_dev = port_return(returns)
+
+print(portfolio_returns)
+print(portfolio_std_dev)
+
+portfolio = np.array([port_return(np.random.randn(n_assets, i))  for i in range(1, 101)])
+
+
+best_fit = sm.OLS(portfolio[:, 1], sm.add_constant(portfolio[:, 0]))\
+           .fit().fittedvalues
+
+fig = go.Figure()
+fig.add_trace(go.Scatter(name='Risk-Return Relationship', x=portfolio[:,0], y=portfolio[:,1], mode='markers'))
+fig.add_trace(go.Scatter(name='Best Fit Line', x=portfolio[:,0], y=best_fit, mode='lines'))
+fig.update_layout(xaxis_title = 'Return', yaxis_title = 'Standard Deviation', width=900, height=470)
+
+fig.show()
+
+"""
+Yukarıda verilen Python kodu aracılığıyla oluşturulan, risk ve getirinin birlikte gittiğini doğrular, 
+ancak bu korelasyonun büyüklüğü bireysel hisse senedine ve finansal piyasa koşullarına bağlı olarak değişir.
+
+
+Risk yönetimi, riski ne pahasına olursa olsun azaltmakla ilgili değildir. Riski azaltmak, getiriden fedakarlık etmeyi gerektirebilir ve 
+şirketler riski azaltmak kadar daha yüksek getiri arayışında olduğu için belirli bir seviyeye kadar tolere edilebilir. 
+
+Bu nedenle, riski düşürürken karı maksimize etmek hassas ve iyi tanımlanmış bir görev olmalıdır.
+
+
+Riski yönetmek, bir maliyeti olduğu için hassas bir iştir ve bununla başa çıkmak belirli şirket politikaları gerektirse de, 
+olası risk stratejileri için genel bir çerçeve mevcuttur. Bunlar:
+
+    Yoksay: Bu stratejide şirketler tüm riskleri ve sonuçlarını kabul eder ve hiçbir şey yapmamayı tercih eder.
+
+    Transfer: Bu strateji, riskten korunma veya başka yollarla risklerin üçüncü bir tarafa aktarılmasını içerir.
+
+    Azaltma: Şirketler, kısmen, zararlı etkilerinin taşıyamayacağı ve/veya kendisine bağlı faydayı bastıramayacağı düşünüldüğünden, riski azaltmak için bir strateji geliştirir.
+    
+    Riski kabul et: Şirketler, riski kabul etme stratejisini benimserlerse, riskleri uygun şekilde belirler ve bunların faydasını kabul ederler. Diğer bir deyişle, bazı faaliyetlerden kaynaklanan belirli risklerin hissedarlara değer kattığı varsayıldığında, bu strateji seçilebilir.
+
+
+Finansal şirketler iş hayatları boyunca çeşitli risklerle karşı karşıya kalmaktadır. 
+Bu riskler daha kolay tespit edilip değerlendirilebilecek şekilde farklı kategorilere ayrılabilir. 
+Bu ana finansal risk türleri piyasa riski, kredi riski, operasyonel risk ve likidite riskidir ancak yine de bu kapsamlı bir liste değildir.
+
+
+PİYASA RİSKİ
+Bu risk, finansal piyasadaki faktörlerin değişmesinden kaynaklanmaktadır. Daha açık olmak gerekirse, örneğin, faiz oranındaki bir artış, 
+kısa pozisyonu olan bir şirketi kötü etkileyebilir.
+
+Başka bir piyasa riski kaynağı hakkında ikinci bir örnek verilebilir; Döviz kuru. 
+
+Emtiaları ABD doları cinsinden fiyatlandırılan uluslararası ticaret içeren bir şirket, ABD dolarındaki bir değişime yüksek oranda maruz kalmaktadır.
+Tahmin edebileceğiniz gibi, emtia fiyatlarındaki herhangi bir değişiklik, bir şirketin finansal sürdürülebilirliği için bir tehdit oluşturabilir. 
+Emtia fiyatını doğrudan etkileyen piyasa oyuncuları, nakliye maliyeti vb. birçok temel unsur bulunmaktadır.
+
+
+KREDİ RİSKİ
+Kredi riski en yaygın risklerden biridir. Karşı taraf borcunu ödeyemediğinde kredi riski ortaya çıkar. 
+Örneğin, borçlunun ödemesini yapamaması durumunda kredi riski oluşur. Kredi kalitesinin bozulması aynı zamanda bir kuruluşun sahip olabileceği 
+menkul kıymetlerin piyasa değerinin düşmesi yoluyla bir risk kaynağıdır(Horcher, 2011).
+
+
+LİKİDTE RİSK
+Bir şirketin varlıklarını kısa sürede nakde çevirememesi likidite riski kategorisine girer ve şirketin finansal yönetimine ve itibarına oldukça zarar verir.
+
+OPERASYONEL RİSK
+Adından da anlaşılacağı gibi, operasyonel risk, bir şirket veya sektördeki doğal operasyon(lar)ın o şirketin günlük operasyonları, 
+karlılığı veya sürdürülebilirliği için bir tehdit oluşturduğunda ortaya çıkar. 
+Operasyonel risk, hileli faaliyetleri, düzenlemelere veya dahili prosedürlere uyulmaması, eğitim eksikliğinden kaynaklanan kayıplar vb.
+
+Bir şirket hazırlıksız olarak bu risklerden bir veya birkaçına maruz kalırsa ne olur? Sık olmasa da cevabını tarihi olaylardan biliyoruz, 
+şirket temerrüde düşebilir ve büyük bir finansal darboğaz yaşayabilir.
+
+
+Stulz'un “Risk yönetimi başarısızlıkları: Nedir ve ne zaman olur?” başlıklı makalesi. (2008), temerrüde neden olan ana risk yönetimi başarısızlıklarını özetlemektedir:
+
+1) Bilinen risklerin yanlış ölçümü
+2) Riskleri hesaba katmamak
+3) Risklerin üst yönetime iletilmemesi
+4) Risklerin izlenmesinde başarısızlık
+5) Riskleri yönetmede başarısızlık
+6) Uygun risk ölçütlerinin kullanılmaması
+
+
+Finansman maliyeti ve firma değerlemesi bilgi asimetrisinden derinden etkilendiğinden, bilgi asimetrisi ve finansal risk yönetimi el ele gider. 
+Yani, bir firmanın varlıklarının değerlemesindeki belirsizlik, bir firmanın sürdürülebilirliği için bir tehdit oluşturan borçlanma maliyetini yükseltebilir(Bkz. DeMarzo ve Darrell (1995) ve Froot, Scharfstein ve Stein (1993)).
+
+Yukarıda anlatılan başarısızlıkların kökleri öyle derinlerdedir ki, rasyonel karar vericinin içinde yaşadığı mükemmel varsayımsal dünya bunları açıklayamaz. 
+Bu noktada insan içgüdüleri ve kusurlu dünya devreye girer ve disiplinlerin bir karışımı daha makul gerekçeler sunar. 
+Dolayısıyla, Ters Seçim ve Ahlaki Tehlikenin piyasa başarısızlıklarını açıklayan iki önemli kategori olduğu anlaşılmıştır.
+
+Bir tarafın bilgi avantajından yararlanmaya çalıştığı bir tür asimetrik bilgidir. Ters seçim, satıcı alıcılardan daha bilgili olduğunda ortaya çıkar. 
+Bu fenomen, Akerlof (1970) tarafından “Limon Piyasaları” olarak mükemmel bir şekilde oluşturulmuştur. Bu çerçevede limon, düşük kaliteyi ifade eder.
+
+
+
+Python kullanarak ters seçimi(Sigorta sektöründe) modellemeye çalışalım. 
+
+Tüketici fayda fonksiyonunun şöyle olduğunu varsayalım:
+
+U (x) = eγx   (Fayda fonksiyonu, tüketici tercihlerini(mal ve hizmet) temsil etmek için kullanılan bir araçtır ve riskten kaçınan bireyler için içbükeydir.)
+
+Burada x gelir ve γ, 0 ile 1 arasında değerler alan bir parametredir.
+
+Bu örneğin nihai amacı, tüketici faydasına dayalı bir sigorta satın alıp almamaya karar vermektir.
+Gelirin 2 TL ve kazanın maliyetinin 1,5 TL olduğunu varsayılmaktadır.
+
+Sonra, dışsal olarak verilen ve düzgün dağılmış olan kayıp olasılığı π'yi hesaplanacak.
+Son bir adım olarak, dengeyi bulmak için sigorta kapsamı için arz ve talebi tanımlanması gerekiyor. 
+Aşağıdaki kod bloğu, ters seçimi nasıl modelleyebileceğimizi gösterir.
+"""
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+plt.style.use('seaborn')
+
+def utility(x):
+  return(np.exp(x ** gamma))   #Riskten kaçınan için fayda işlevi  yazma.
+
+pi = np.random.uniform(0,1,20)
+pi = np.sort(pi)              #Düzgün dağılımdan rastgele örnekler oluşturma.
+
+
+y = 2
+c = 1.5
+Q = 5
+D = 0.01
+gamma = 0.4
+
+def supply(Q):
+  return(np.mean(pi[-Q:]) * c)    #Sigorta sözleşmelerinin arz fonksiyonunun yazılması.
+
+def demand(D):
+  return(np.sum(utility(y - D) > pi * utility(y - c) + (1 - pi) * utility(y)))  #Sigorta sözleşmelerinin talep fonksiyonunun yazılması.
+
+plt.figure()
+plt.plot([demand(i) for i in np.arange(0, 1.9, 0.02)], np.arange(0, 1.9, 0.02),
+         'r', label='sigorta talebi')
+plt.plot(range(1,21), [supply(j) for j in range(1,21)],
+         'g', label='sigorta arzı')
+plt.ylabel('Ortalama Maliyet')
+plt.xlabel('Müşteri Sayısı')
+plt.legend()
+plt.show()
+
+print('En büyük üç kayıp : {}'.format(pi[-3:]))  #Son üç öğeyi seçmek.
+
+
+"""
+Şaşırtıcı bir şekilde, her iki eğri de aşağı doğru eğimlidir, bu da daha fazla insan sözleşme talep ettikçe ve sözleşmeye daha fazla kişi eklendikçe, 
+sigorta sözleşmesinin fiyatını etkileyen riskin düştüğünü gösterir.
+
+Doğru, sigorta arzını ve sözleşmenin ortalama maliyetini gösterir ve kademeli olarak aşağı doğru eğimi gösteren doğru, 
+sigorta sözleşmelerine olan talebi gösterir. 
+
+Ortalama maliyete paralel olarak risklilik seviyesi azalmaktadır.
+
+
+
+
+Piyasa başarısızlıkları da asimetrik bilgiden kaynaklanmaktadır. Ahlaki tehlike durumunda, sözleşmenin bir tarafı diğer tarafa göre daha fazla risk üstlenir. 
+Resmi olarak, ahlaki tehlike, daha bilgili bir tarafın, emrindeki özel bilgilerden başkalarının zararına yararlandığı bir durum olarak tanımlanabilir.
+
+Ahlaki tehlikenin daha iyi anlaşılması için, kredi piyasasından basit bir örnek verilebilir: 
+
+Varsayalım ki A işletmesi, finanse edilmesi mümkün olduğu düşünülen projeyi finanse etmek için kredi talep ediyor. 
+A işletmesinin krediyi borç veren bankaya önceden bildirimde bulunmaksızın C bankasına kredi borcunu ödemek için kullanması durumunda ahlaki tehlike ortaya çıkar. 
+Bankaların kredi tahsisi yaparken karşılaşabilecekleri ahlaki tehlike durumu, asimetrik bilgi sonucunda ortaya çıkmakta, 
+bankaların kredi verme iştahlarını azaltmakta ve bankaların kredi tahsis sürecine bu kadar emek harcamasının sebeplerinden biri olarak karşımıza çıkmaktadır.
+
+
+
+"""
+
