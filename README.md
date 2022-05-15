@@ -46,4 +46,7 @@ This step involves applying the agreed-upon controls and processes and confirmin
 Are the controls working as intended? Can they be improved? Monitoring activities should measure key performance indicators (KPIs) and look for key risk indicators (KRIs) that might trigger a change in strategy.
 
 
+![image](https://user-images.githubusercontent.com/105038798/168465374-971c514d-e7a6-4aae-8781-af101b24606c.png)
+
+
 ![image](https://user-images.githubusercontent.com/105038798/168465228-44a9175e-f853-4cfe-b90c-11634dc5def9.png)
