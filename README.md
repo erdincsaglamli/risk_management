@@ -1,3 +1,6 @@
+data(“crown-jewel” asset) culture matters
+
+
 ![image](https://user-images.githubusercontent.com/105038798/168465097-df82822f-e2a7-4c88-b4ad-edabab1bfa95.png)
 
 
