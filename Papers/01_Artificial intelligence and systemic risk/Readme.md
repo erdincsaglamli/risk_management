@@ -22,3 +22,6 @@ AI is becoming more common in financial applications. It's being used to increas
 The increased use of AI in micro prudential regulations and internal risk management could be socially beneficial, aiding in the provision of financial services while decreasing costs. However, the use of AI in macro prudential regulations and critical private sector objectives should be heavily scrutinized and ejected if any issues arise. The problem is that the longer a macro AI is in charge, the harder it becomes to switch it off. The AI's knowledge of the financial system and its internal representation of data become unintelligible to humans, and turning off AI could risk disrupting the system in unforeseen ways.
 
 In conclusion, AI is good for micro financial problems, but it might not be suitable for macro financial problems. Therefore, the use of AI needs to be scrutinized when it come s to macro financial problems.
+
+Alter: https://www.sciencedirect.com/science/article/pii/S0378426621002466#sec0001
+
