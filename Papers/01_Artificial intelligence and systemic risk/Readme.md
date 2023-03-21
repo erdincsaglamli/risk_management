@@ -23,5 +23,6 @@ The increased use of AI in micro prudential regulations and internal risk manage
 
 In conclusion, AI is good for micro financial problems, but it might not be suitable for macro financial problems. Therefore, the use of AI needs to be scrutinized when it come s to macro financial problems.
 
+________________________________________________________________________________________
 Alter: https://www.sciencedirect.com/science/article/pii/S0378426621002466#sec0001
 
